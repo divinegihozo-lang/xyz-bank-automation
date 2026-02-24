@@ -1,5 +1,6 @@
 package com.xyzbank.pages;
 
+import io.qameta.allure.Step;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -72,14 +73,17 @@ public class CustomerAccountPage {
         PageFactory.initElements(driver, this);
     }
 
+    @Step("Get logged-in customer name")
     public String getCustomerName() {
         return waitUtils.waitForVisible(customerName).getText();
     }
 
+    @Step("Get current account balance")
     public String getAccountBalance() {
         return waitUtils.waitForVisible(accountBalance).getText().trim();
     }
 
+    @Step("Select account number: {accountNo}")
     public void selectAccount(String accountNo) {
         Select select = new Select(accountDropdown);
         select.selectByVisibleText(accountNo);
@@ -87,20 +91,22 @@ public class CustomerAccountPage {
 
     // ─── Deposit ──────────────────────────────────────────────────────────────
 
+    @Step("Click on Deposit tab")
     public void clickDepositTab() {
         waitUtils.waitForClickable(depositTab).click();
-        // Wait for Deposit form label
         try {
             waitUtils.waitForVisible(org.openqa.selenium.By.xpath("//label[contains(text(),'Deposited')]"));
         } catch (Exception ignored) {
         }
     }
 
+    @Step("Enter amount: {amount}")
     public void enterAmount(String amount) {
         amountInput.clear();
         amountInput.sendKeys(amount);
     }
 
+    @Step("Click on Submit button")
     public void clickSubmit() {
         try {
             waitUtils.waitForClickable(submitButton).click();
@@ -109,12 +115,14 @@ public class CustomerAccountPage {
         }
     }
 
+    @Step("Deposit amount: {amount}")
     public void deposit(String amount) {
         clickDepositTab();
         enterAmount(amount);
         clickSubmit();
     }
 
+    @Step("Verify if deposit was successful")
     public boolean isDepositSuccessful() {
         try {
             return waitUtils.waitForVisible(depositSuccessMessage).isDisplayed();
@@ -125,6 +133,7 @@ public class CustomerAccountPage {
 
     // ─── Withdrawal ───────────────────────────────────────────────────────────
 
+    @Step("Click on Withdrawal tab")
     public void clickWithdrawalTab() {
         waitUtils.waitForClickable(withdrawalTab).click();
         try {
@@ -133,12 +142,14 @@ public class CustomerAccountPage {
         }
     }
 
+    @Step("Withdraw amount: {amount}")
     public void withdraw(String amount) {
         clickWithdrawalTab();
         enterAmount(amount);
         clickSubmit();
     }
 
+    @Step("Verify if transaction failed")
     public boolean isTransactionFailed() {
         try {
             return transactionFailedMessage.isDisplayed();
@@ -149,14 +160,17 @@ public class CustomerAccountPage {
 
     // ─── Transactions ─────────────────────────────────────────────────────────
 
+    @Step("Click on Transactions tab")
     public void clickTransactionsTab() {
         waitUtils.waitForClickable(transactionsTab).click();
     }
 
+    @Step("Get transaction rows")
     public List<WebElement> getTransactionRows() {
         return transactionRows;
     }
 
+    @Step("Get transaction count")
     public int getTransactionCount() {
         try {
             waitUtils.waitForVisible(org.openqa.selenium.By
@@ -166,6 +180,7 @@ public class CustomerAccountPage {
         return transactionRows.size();
     }
 
+    @Step("Verify if Reset button is displayed")
     public boolean isResetButtonDisplayed() {
         try {
             return resetButton.isDisplayed();
@@ -174,6 +189,7 @@ public class CustomerAccountPage {
         }
     }
 
+    @Step("Verify if Reset button is enabled")
     public boolean isResetButtonEnabled() {
         try {
             return resetButton.isEnabled();
@@ -184,10 +200,12 @@ public class CustomerAccountPage {
 
     // ─── Navigation ───────────────────────────────────────────────────────────
 
+    @Step("Click on Logout button")
     public void clickLogout() {
         logoutButton.click();
     }
 
+    @Step("Verify if Logout button is displayed")
     public boolean isLogoutButtonDisplayed() {
         try {
             return waitUtils.waitForVisible(logoutButton).isDisplayed();
@@ -196,6 +214,7 @@ public class CustomerAccountPage {
         }
     }
 
+    @Step("Verify if customer is logged in")
     public boolean isLoggedIn() {
         return isLogoutButtonDisplayed();
     }

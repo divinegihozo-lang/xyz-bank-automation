@@ -1,5 +1,6 @@
 package com.xyzbank.pages;
 
+import io.qameta.allure.Step;
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -65,29 +66,35 @@ public class BankManagerPage {
 
     // ─── Add Customer ─────────────────────────────────────────────────────────
 
+    @Step("Click on Add Customer tab")
     public void clickAddCustomerTab() {
         waitUtils.waitForClickable(addCustomerTab).click();
     }
 
+    @Step("Enter First Name: {firstName}")
     public void enterFirstName(String firstName) {
         firstNameInput.clear();
         firstNameInput.sendKeys(firstName);
     }
 
+    @Step("Enter Last Name: {lastName}")
     public void enterLastName(String lastName) {
         lastNameInput.clear();
         lastNameInput.sendKeys(lastName);
     }
 
+    @Step("Enter Postal Code: {postalCode}")
     public void enterPostalCode(String postalCode) {
         postalCodeInput.clear();
         postalCodeInput.sendKeys(postalCode);
     }
 
+    @Step("Click on Add Customer submit button")
     public void clickAddCustomerSubmit() {
         waitUtils.waitForClickable(addCustomerSubmitButton).click();
     }
 
+    @Step("Add new customer: {firstName} {lastName}")
     public String addCustomer(String firstName, String lastName, String postalCode) {
         clickAddCustomerTab();
         enterFirstName(firstName);
@@ -109,10 +116,12 @@ public class BankManagerPage {
 
     // ─── Open Account ─────────────────────────────────────────────────────────
 
+    @Step("Click on Open Account tab")
     public void clickOpenAccountTab() {
         waitUtils.waitForClickable(openAccountTab).click();
     }
 
+    @Step("Select customer for account: {customerName}")
     public void selectCustomerForAccount(String customerName) {
         waitUtils.waitForVisible(customerSelectDropdown);
         waitUtils.waitForCondition(driver -> {
@@ -128,6 +137,7 @@ public class BankManagerPage {
         new Select(customerSelectDropdown).selectByVisibleText(customerName);
     }
 
+    @Step("Select currency: {currency}")
     public void selectCurrency(String currency) {
         waitUtils.waitForVisible(currencyDropdown);
         waitUtils.waitForCondition(driver -> {
@@ -143,10 +153,12 @@ public class BankManagerPage {
         new Select(currencyDropdown).selectByVisibleText(currency);
     }
 
+    @Step("Click on Open Account submit button")
     public void clickOpenAccountSubmit() {
         waitUtils.waitForClickable(openAccountSubmitButton).click();
     }
 
+    @Step("Open new account for customer: {customerName} with currency: {currency}")
     public String openAccount(String customerName, String currency) {
         clickOpenAccountTab();
         selectCustomerForAccount(customerName);
@@ -167,18 +179,22 @@ public class BankManagerPage {
 
     // ─── Customers List ───────────────────────────────────────────────────────
 
+    @Step("Click on Customers tab")
     public void clickCustomersTab() {
         waitUtils.waitForClickable(customersTab).click();
     }
 
+    @Step("Get customer rows")
     public List<WebElement> getCustomerRows() {
         return customerRows;
     }
 
+    @Step("Get customer count")
     public int getCustomerCount() {
         return customerRows.size();
     }
 
+    @Step("Search for customer: {name}")
     public void searchCustomer(String name) {
         waitUtils.waitForVisible(searchInput).clear();
         searchInput.sendKeys(name);
@@ -188,6 +204,7 @@ public class BankManagerPage {
         }
     }
 
+    @Step("Delete customer: {customerName}")
     public void deleteCustomer(String customerName) {
         searchCustomer(customerName);
         for (WebElement row : customerRows) {
@@ -205,6 +222,7 @@ public class BankManagerPage {
         }
     }
 
+    @Step("Check if customer is present: {customerName}")
     public boolean isCustomerPresent(String customerName) {
         clickCustomersTab();
         try {
@@ -221,6 +239,7 @@ public class BankManagerPage {
         return false;
     }
 
+    @Step("Click on Home button")
     public void clickHome() {
         homeButton.click();
     }
