@@ -16,8 +16,8 @@ public class BaseTest {
     protected BankManagerPage bankManagerPage;
     protected CustomerLoginPage customerLoginPage;
     protected CustomerAccountPage accountPage;
-    protected static final String BASE_URL =
-            "https://www.globalsqa.com/angularJs-protractor/BankingProject/#/login";
+    protected static final String BASE_URL = System.getProperty("base.url",
+            "https://www.globalsqa.com/angularJs-protractor/BankingProject/#/login");
 
     @BeforeMethod(alwaysRun = true)
     public void setUp() {
