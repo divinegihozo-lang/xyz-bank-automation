@@ -54,7 +54,6 @@ public class BankManagerTest extends BaseTest {
         @Severity(SeverityLevel.NORMAL)
         @Description("Verify that the system does not allow adding a customer with numbers in the name.")
         public void verifyAddCustomerWithNumericName() {
-                // Attempt to add customer with invalid name
                 bankManagerPage.clickAddCustomerTab();
                 bankManagerPage.enterFirstName(TestData.INVALID_FIRST_NAME_NUMBERS);
                 bankManagerPage.enterLastName(TestData.NEW_CUSTOMER_LAST_NAME);
