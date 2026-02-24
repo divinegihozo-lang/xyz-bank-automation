@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  # ─── Test Runner Service ──────────────────────────────────────────────────
+  test-runner:
+    build:
+      context: .
+      target: builder
+    container_name: xyz-bank-tests
+    environment:
+      - HEADLESS=true
+      - BROWSER=chrome
+    volumes:
+      - allure-results:/app/target/allure-results
+    networks:
+      - xyz-bank-network
+
+  # ─── Allure Report Service ────────────────────────────────────────────────
+  allure-report:
+    image: frankescobar/allure-docker-service:latest
+    container_name: xyz-bank-allure
+    environment:
+      CHECK_RESULTS_EVERY_SECONDS: 3
+      KEEP_HISTORY: 1
+    ports:
+      - "5050:5050"
+    volumes:
+      - allure-results:/app/allure-results
+    networks:
+      - xyz-bank-network
+    depends_on:
+      - test-runner
+
+volumes:
+  allure-results:
+
+networks:
+  xyz-bank-network:
+    driver: bridge
