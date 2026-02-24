@@ -1,6 +1,6 @@
 package com.xyzbank.pages;
 
-import com.xyzbank.utils.WaitUtils;
+import com.xyzbank.helpers.WaitUtils;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -8,7 +8,6 @@ import org.openqa.selenium.support.PageFactory;
 
 public class LoginPage {
 
-    private final WebDriver driver;
     private final WaitUtils waitUtils;
 
     @FindBy(xpath = "//button[contains(text(),'Customer Login')]")
@@ -21,7 +20,6 @@ public class LoginPage {
     private WebElement bankTitle;
 
     public LoginPage(WebDriver driver) {
-        this.driver = driver;
         this.waitUtils = new WaitUtils(driver);
         PageFactory.initElements(driver, this);
     }

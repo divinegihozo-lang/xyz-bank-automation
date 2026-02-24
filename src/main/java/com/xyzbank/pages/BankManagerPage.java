@@ -1,6 +1,6 @@
 package com.xyzbank.pages;
 
-import com.xyzbank.utils.WaitUtils;
+import com.xyzbank.helpers.WaitUtils;
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;

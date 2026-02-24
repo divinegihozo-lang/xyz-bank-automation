@@ -1,6 +1,6 @@
 package com.xyzbank.pages;
 
-import com.xyzbank.utils.WaitUtils;
+import com.xyzbank.helpers.WaitUtils;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -9,7 +9,6 @@ import org.openqa.selenium.support.ui.Select;
 
 public class CustomerLoginPage {
 
-    private final WebDriver driver;
     private final WaitUtils waitUtils;
 
     @FindBy(id = "userSelect")
@@ -22,7 +21,6 @@ public class CustomerLoginPage {
     private WebElement homeButton;
 
     public CustomerLoginPage(WebDriver driver) {
-        this.driver = driver;
         this.waitUtils = new WaitUtils(driver);
         PageFactory.initElements(driver, this);
     }

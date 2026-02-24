@@ -47,7 +47,7 @@ jobs:
       - name: Run Selenium tests (headless)
         id: run-tests
         run: |
-          mvn test -P ci \
+          mvn clean test -P ci \
             -Dheadless=true \
             -Dmaven.test.failure.ignore=true \
             --batch-mode \
@@ -61,9 +61,11 @@ jobs:
         id: parse-results
         run: |
           TOTAL=0; PASSED=0; FAILED=0; SKIPPED=0; ERRORS=0
+          FILES_FOUND=false
 
           for f in target/surefire-reports/TEST-*.xml; do
             [ -f "$f" ] || continue
+            FILES_FOUND=true
             t=$(grep  -oP 'tests="\K[0-9]+'    "$f" | head -1)
             fa=$(grep -oP 'failures="\K[0-9]+' "$f" | head -1)
             sk=$(grep -oP 'skipped="\K[0-9]+'  "$f" | head -1)
@@ -79,15 +81,16 @@ jobs:
 
           # Build HTML rows for failed tests
           FAILURES_HTML=""
-          for f in target/surefire-reports/TEST-*.xml; do
-            [ -f "$f" ] || continue
-            while IFS='|' read -r cls nm msg; do
-              FAILURES_HTML+="<tr>"
-              FAILURES_HTML+="<td style='padding:8px 12px;border-bottom:1px solid #eee;font-family:monospace;font-size:12px;color:#b71c1c'>${cls}</td>"
-              FAILURES_HTML+="<td style='padding:8px 12px;border-bottom:1px solid #eee;font-size:13px'>${nm}</td>"
-              FAILURES_HTML+="<td style='padding:8px 12px;border-bottom:1px solid #eee;font-size:12px;color:#555'>${msg}</td>"
-              FAILURES_HTML+="</tr>"
-            done < <(python3 - "$f" <<'PYEOF'
+          if [ "$FILES_FOUND" = "true" ]; then
+            for f in target/surefire-reports/TEST-*.xml; do
+              [ -f "$f" ] || continue
+              while IFS='|' read -r cls nm msg; do
+                FAILURES_HTML+="<tr>"
+                FAILURES_HTML+="<td style='padding:8px 12px;border-bottom:1px solid #eee;font-family:monospace;font-size:12px;color:#b71c1c'>${cls}</td>"
+                FAILURES_HTML+="<td style='padding:8px 12px;border-bottom:1px solid #eee;font-size:13px'>${nm}</td>"
+                FAILURES_HTML+="<td style='padding:8px 12px;border-bottom:1px solid #eee;font-size:12px;color:#555'>${msg}</td>"
+                FAILURES_HTML+="</tr>"
+              done < <(python3 - "$f" <<'PYEOF'
           import sys, xml.etree.ElementTree as ET
           tree = ET.parse(sys.argv[1])
           for tc in tree.findall('.//testcase'):
@@ -96,8 +99,9 @@ jobs:
               msg = ((node.get('message') or node.text or '').strip())[:280]
               print(f"{tc.get('classname','')}|{tc.get('name','')}|{msg}")
           PYEOF
-            )
-          done
+              )
+            done
+          fi
 
           echo "total=$TOTAL"     >> $GITHUB_OUTPUT
           echo "passed=$PASSED"   >> $GITHUB_OUTPUT
@@ -105,6 +109,7 @@ jobs:
           echo "skipped=$SKIPPED" >> $GITHUB_OUTPUT
           echo "errors=$ERRORS"   >> $GITHUB_OUTPUT
           echo "pass_pct=$PASS_PCT" >> $GITHUB_OUTPUT
+          echo "files_found=$FILES_FOUND" >> $GITHUB_OUTPUT
           {
             echo "failures_html<<HTMLEOF"
             printf '%s' "$FAILURES_HTML"
@@ -214,20 +219,35 @@ jobs:
                   })
 
           outcome = "${{ steps.run-tests.outcome }}"
-          is_pass = (outcome == "success" and int(failed) == 0)
+          files_found = "${{ steps.parse-results.outputs.files_found }}" == "true"
+          is_pass = (outcome == "success" and int(failed) == 0 and files_found)
 
-          status    = "PASSED"  if is_pass else "FAILED"
-          s_icon    = "[PASSED]" if is_pass else "[FAILED]"
-          s_color   = "#2e7d32" if is_pass else "#b71c1c"
-          s_bg      = "#e8f5e9" if is_pass else "#ffebee"
+          if not files_found and outcome != "success":
+              status = "BUILD FAILED"
+              s_icon = "[BUILD FAILED]"
+              s_color = "#b71c1c"
+              s_bg = "#ffebee"
+          else:
+              status = "PASSED" if is_pass else "FAILED"
+              s_icon = "[PASSED]" if is_pass else "[FAILED]"
+              s_color = "#2e7d32" if is_pass else "#b71c1c"
+              s_bg = "#e8f5e9" if is_pass else "#ffebee"
 
-          next_steps = (
-            "All tests passed. The build is stable and the XYZ Bank features are "
-            "working as expected. No immediate action is required."
-          ) if is_pass else (
-            "<strong>Action required.</strong> One or more tests failed. Please review the detailed "
-            "failure report below and download the Allure artifact from GitHub for visual logs."
-          )
+          if not files_found and outcome != "success":
+              next_steps = (
+                "<strong>The build failed during the compilation or setup phase.</strong> "
+                "No tests were executed. Please check the 'Run Selenium tests' step logs on GitHub for details."
+              )
+          elif is_pass:
+              next_steps = (
+                "All tests passed. The build is stable and the XYZ Bank features are "
+                "working as expected. No immediate action is required."
+              )
+          else:
+              next_steps = (
+                "<strong>Action required.</strong> One or more tests failed. Please review the detailed "
+                "failure report below and download the Allure artifact from GitHub for visual logs."
+              )
 
           event = "${{ github.event_name }}"
           trigger = {
@@ -423,7 +443,8 @@ jobs:
           skipped  = "${{ steps.parse-results.outputs.skipped }}"  or "0"
           pass_pct = "${{ steps.parse-results.outputs.pass_pct }}" or "0"
           outcome  = "${{ steps.run-tests.outcome }}"
-          is_pass  = (outcome == "success" and int(failed) == 0)
+          files_found = "${{ steps.parse-results.outputs.files_found }}" == "true"
+          is_pass  = (outcome == "success" and int(failed) == 0 and files_found)
 
           repo     = "${{ github.repository }}"
           branch   = "${{ github.ref_name }}"
@@ -442,58 +463,64 @@ jobs:
 
           # ── Parse Allure JSON results for failing tests ──────────────────
           failing_tests = []
-          for json_file in sorted(glob("target/allure-results/*-result.json")):
-              try:
-                  with open(json_file, 'r', encoding='utf-8') as f:
-                      data = json.load(f)
-              except (json.JSONDecodeError, IOError):
-                  continue
+          if files_found:
+              for json_file in sorted(glob("target/allure-results/*-result.json")):
+                  try:
+                      with open(json_file, 'r', encoding='utf-8') as f:
+                          data = json.load(f)
+                  except (json.JSONDecodeError, IOError):
+                      continue
 
-              if data.get("status") in ["failed", "broken"]:
-                  # Extract labels for class name
-                  labels = {l["name"]: l["value"] for l in data.get("labels", [])}
-                  test_class = labels.get("testClass", "").split(".")[-1] or "Unknown"
-                  
-                  # Extract steps
-                  steps_list = []
-                  for i, s in enumerate(data.get("steps", []), 1):
-                      steps_list.append(f"{i}. {s.get('name', 'Step')}")
-                  
-                  steps_str = "\n".join(steps_list) if steps_list else "1. See Allure report for detailed execution trace."
+                  if data.get("status") in ["failed", "broken"]:
+                      # Extract labels for class name
+                      labels = {l["name"]: l["value"] for l in data.get("labels", [])}
+                      test_class = labels.get("testClass", "").split(".")[-1] or "Unknown"
+                      
+                      # Extract steps
+                      steps_list = []
+                      for i, s in enumerate(data.get("steps", []), 1):
+                          steps_list.append(f"{i}. {s.get('name', 'Step')}")
+                      
+                      steps_str = "\n".join(steps_list) if steps_list else "1. See Allure report for detailed execution trace."
 
-                  # Extract description (Allure often puts it in the 'description' field)
-                  desc = data.get("description", "No description provided.")
-                  
-                  # Separate impact if it was included in the description string
-                  impact = "High: Test failure indicates a defect that needs immediate investigation."
-                  if "**Impact:**" in desc:
-                      parts = desc.split("**Impact:**")
-                      desc = parts[0].strip()
-                      impact = parts[1].strip()
+                      # Extract description (Allure often puts it in the 'description' field)
+                      desc = data.get("description", "No description provided.")
+                      
+                      # Separate impact if it was included in the description string
+                      impact = "High: Test failure indicates a defect that needs immediate investigation."
+                      if "**Impact:**" in desc:
+                          parts = desc.split("**Impact:**")
+                          desc = parts[0].strip()
+                          impact = parts[1].strip()
 
-                  # Severity mapping
-                  severity = labels.get("severity", "normal").capitalize()
-                  priority = "High" if severity in ["Blocker", "Critical"] else ("Medium" if severity == "Normal" else "Low")
+                      # Severity mapping
+                      severity = labels.get("severity", "normal").capitalize()
+                      priority = "High" if severity in ["Blocker", "Critical"] else ("Medium" if severity == "Normal" else "Low")
 
-                  # Check for screenshot attachments
-                  has_screenshot = any("screenshot" in att.get("name", "").lower() for att in data.get("attachments", []))
-                  screenshot_note = "Screenshot captured! Find it in the Allure Report artifact below." if has_screenshot else "No screenshot captured for this failure."
+                      # Check for screenshot attachments
+                      has_screenshot = any("screenshot" in att.get("name", "").lower() for att in data.get("attachments", []))
+                      screenshot_note = "Screenshot captured! Find it in the Allure Report artifact below." if has_screenshot else "No screenshot captured for this failure."
 
-                  failing_tests.append({
-                      "name":        data.get("name", data.get("fullName", "Unknown Test")),
-                      "class":       test_class,
-                      "desc":        desc,
-                      "steps":       steps_str,
-                      "expected":    data.get("statusDetails", {}).get("message", "N/A"),
-                      "impact":      impact,
-                      "priority":    priority,
-                      "severity":    severity,
-                      "screenshot":  screenshot_note
-                  })
+                      failing_tests.append({
+                          "name":        data.get("name", data.get("fullName", "Unknown Test")),
+                          "class":       test_class,
+                          "desc":        desc,
+                          "steps":       steps_str,
+                          "expected":    data.get("statusDetails", {}).get("message", "N/A"),
+                          "impact":      impact,
+                          "priority":    priority,
+                          "severity":    severity,
+                          "screenshot":  screenshot_note
+                      })
 
-          # ── Build the Slack failure blocks ───────────────────────────────
-          header_color = "#2e7d32" if is_pass else "#e01e5a"
-          status_label = "PASSED" if is_pass else "FAILED"
+          if not files_found and outcome != "success":
+              status_label = "BUILD FAILED"
+              status_emoji = "❌"
+              header_color = "#b71c1c"
+          else:
+              status_label = "PASSED" if is_pass else "FAILED"
+              status_emoji = "✅" if is_pass else "❌"
+              header_color = "#2e7d32" if is_pass else "#e01e5a"
 
           failure_blocks = []
           for i, t in enumerate(failing_tests, 1):
