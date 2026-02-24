@@ -27,21 +27,19 @@ public class CustomerLoginPage {
         PageFactory.initElements(driver, this);
     }
 
-    public CustomerLoginPage selectCustomer(String customerName) {
+    public void selectCustomer(String customerName) {
         waitUtils.waitForVisible(customerDropdown);
         Select select = new Select(customerDropdown);
         select.selectByVisibleText(customerName);
-        return this;
     }
 
-    public CustomerAccountPage clickLogin() {
+    public void clickLogin() {
         waitUtils.waitForClickable(loginButton).click();
-        return new CustomerAccountPage(driver);
     }
 
-    public CustomerAccountPage loginAs(String customerName) {
+    public void loginAs(String customerName) {
         selectCustomer(customerName);
-        return clickLogin();
+        clickLogin();
     }
 
     public boolean isLoginButtonDisplayed() {

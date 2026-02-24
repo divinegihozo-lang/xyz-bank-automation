@@ -66,32 +66,27 @@ public class BankManagerPage {
 
     // ─── Add Customer ─────────────────────────────────────────────────────────
 
-    public BankManagerPage clickAddCustomerTab() {
+    public void clickAddCustomerTab() {
         waitUtils.waitForClickable(addCustomerTab).click();
-        return this;
     }
 
-    public BankManagerPage enterFirstName(String firstName) {
+    public void enterFirstName(String firstName) {
         firstNameInput.clear();
         firstNameInput.sendKeys(firstName);
-        return this;
     }
 
-    public BankManagerPage enterLastName(String lastName) {
+    public void enterLastName(String lastName) {
         lastNameInput.clear();
         lastNameInput.sendKeys(lastName);
-        return this;
     }
 
-    public BankManagerPage enterPostalCode(String postalCode) {
+    public void enterPostalCode(String postalCode) {
         postalCodeInput.clear();
         postalCodeInput.sendKeys(postalCode);
-        return this;
     }
 
-    public BankManagerPage clickAddCustomerSubmit() {
+    public void clickAddCustomerSubmit() {
         waitUtils.waitForClickable(addCustomerSubmitButton).click();
-        return this;
     }
 
     public String addCustomer(String firstName, String lastName, String postalCode) {
@@ -115,12 +110,11 @@ public class BankManagerPage {
 
     // ─── Open Account ─────────────────────────────────────────────────────────
 
-    public BankManagerPage clickOpenAccountTab() {
+    public void clickOpenAccountTab() {
         waitUtils.waitForClickable(openAccountTab).click();
-        return this;
     }
 
-    public BankManagerPage selectCustomerForAccount(String customerName) {
+    public void selectCustomerForAccount(String customerName) {
         waitUtils.waitForVisible(customerSelectDropdown);
         waitUtils.waitForCondition(driver -> {
             Select select = new Select(customerSelectDropdown);
@@ -133,10 +127,9 @@ public class BankManagerPage {
             return false;
         });
         new Select(customerSelectDropdown).selectByVisibleText(customerName);
-        return this;
     }
 
-    public BankManagerPage selectCurrency(String currency) {
+    public void selectCurrency(String currency) {
         waitUtils.waitForVisible(currencyDropdown);
         waitUtils.waitForCondition(driver -> {
             Select select = new Select(currencyDropdown);
@@ -149,12 +142,10 @@ public class BankManagerPage {
             return false;
         });
         new Select(currencyDropdown).selectByVisibleText(currency);
-        return this;
     }
 
-    public BankManagerPage clickOpenAccountSubmit() {
+    public void clickOpenAccountSubmit() {
         waitUtils.waitForClickable(openAccountSubmitButton).click();
-        return this;
     }
 
     public String openAccount(String customerName, String currency) {
@@ -177,9 +168,8 @@ public class BankManagerPage {
 
     // ─── Customers List ───────────────────────────────────────────────────────
 
-    public BankManagerPage clickCustomersTab() {
+    public void clickCustomersTab() {
         waitUtils.waitForClickable(customersTab).click();
-        return this;
     }
 
     public List<WebElement> getCustomerRows() {
@@ -190,19 +180,16 @@ public class BankManagerPage {
         return customerRows.size();
     }
 
-    public BankManagerPage searchCustomer(String name) {
+    public void searchCustomer(String name) {
         waitUtils.waitForVisible(searchInput).clear();
         searchInput.sendKeys(name);
-        // Small delay for search to filter if necessary, or wait for row count to
-        // satisfy condition
         try {
             Thread.sleep(500);
         } catch (InterruptedException ignored) {
         }
-        return this;
     }
 
-    public BankManagerPage deleteCustomer(String customerName) {
+    public void deleteCustomer(String customerName) {
         searchCustomer(customerName);
         for (WebElement row : customerRows) {
             if (row.getText().contains(customerName)) {
@@ -214,10 +201,9 @@ public class BankManagerPage {
                     Thread.sleep(1000);
                 } catch (InterruptedException ignored) {
                 }
-                return this;
+                return;
             }
         }
-        return this;
     }
 
     public boolean isCustomerPresent(String customerName) {
@@ -236,8 +222,7 @@ public class BankManagerPage {
         return false;
     }
 
-    public LoginPage clickHome() {
+    public void clickHome() {
         homeButton.click();
-        return new LoginPage(driver);
     }
 }

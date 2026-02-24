@@ -1,8 +1,5 @@
 package com.xyzbank.tests;
 
-import com.xyzbank.pages.CustomerAccountPage;
-import com.xyzbank.pages.CustomerLoginPage;
-import com.xyzbank.pages.LoginPage;
 import com.xyzbank.testdata.TestData;
 import com.xyzbank.utils.BaseTest;
 import io.qameta.allure.*;
@@ -14,13 +11,10 @@ import org.testng.annotations.Test;
 @Feature("Customer Banking Operations")
 public class CustomerTest extends BaseTest {
 
-    private CustomerAccountPage accountPage;
-
     @BeforeMethod
     public void loginAsCustomer() {
-        LoginPage loginPage = new LoginPage(driver);
-        CustomerLoginPage customerLoginPage = loginPage.clickCustomerLogin();
-        accountPage = customerLoginPage.loginAs(TestData.CUSTOMER_HARRY);
+        loginPage.clickCustomerLogin();
+        customerLoginPage.loginAs(TestData.CUSTOMER_HARRY);
     }
 
     // ─── Login Tests ──────────────────────────────────────────────────────────
@@ -229,7 +223,7 @@ public class CustomerTest extends BaseTest {
     @Severity(SeverityLevel.NORMAL)
     @Description("Verify that a customer can successfully log out of the application.")
     public void verifyCustomerLogout() {
-        LoginPage loginPage = accountPage.clickLogout();
+        accountPage.clickLogout();
         Assert.assertTrue(loginPage.isCustomerLoginButtonDisplayed(),
                 "After logout, the main login page should be displayed.");
     }

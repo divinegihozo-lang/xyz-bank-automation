@@ -26,14 +26,12 @@ public class LoginPage {
         PageFactory.initElements(driver, this);
     }
 
-    public CustomerLoginPage clickCustomerLogin() {
+    public void clickCustomerLogin() {
         waitUtils.waitForClickable(customerLoginButton).click();
-        return new CustomerLoginPage(driver);
     }
 
-    public BankManagerPage clickBankManagerLogin() {
+    public void clickBankManagerLogin() {
         waitUtils.waitForClickable(bankManagerLoginButton).click();
-        return new BankManagerPage(driver);
     }
 
     public boolean isPageLoaded() {

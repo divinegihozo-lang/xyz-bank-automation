@@ -1,7 +1,5 @@
 package com.xyzbank.tests;
 
-import com.xyzbank.pages.BankManagerPage;
-import com.xyzbank.pages.LoginPage;
 import com.xyzbank.testdata.TestData;
 import com.xyzbank.utils.BaseTest;
 import io.qameta.allure.*;
@@ -13,12 +11,9 @@ import org.testng.annotations.Test;
 @Feature("Bank Manager Operations")
 public class BankManagerTest extends BaseTest {
 
-        private BankManagerPage bankManagerPage;
-
         @BeforeMethod
         public void navigateToBankManager() {
-                LoginPage loginPage = new LoginPage(driver);
-                bankManagerPage = loginPage.clickBankManagerLogin();
+                loginPage.clickBankManagerLogin();
         }
 
         // ─── Add Customer Tests ───────────────────────────────────────────────────
@@ -60,11 +55,11 @@ public class BankManagerTest extends BaseTest {
         @Description("Verify that the system does not allow adding a customer with numbers in the name.")
         public void verifyAddCustomerWithNumericName() {
                 // Attempt to add customer with invalid name
-                bankManagerPage.clickAddCustomerTab()
-                                .enterFirstName(TestData.INVALID_FIRST_NAME_NUMBERS)
-                                .enterLastName(TestData.NEW_CUSTOMER_LAST_NAME)
-                                .enterPostalCode(TestData.NEW_CUSTOMER_POSTAL_CODE)
-                                .clickAddCustomerSubmit();
+                bankManagerPage.clickAddCustomerTab();
+                bankManagerPage.enterFirstName(TestData.INVALID_FIRST_NAME_NUMBERS);
+                bankManagerPage.enterLastName(TestData.NEW_CUSTOMER_LAST_NAME);
+                bankManagerPage.enterPostalCode(TestData.NEW_CUSTOMER_POSTAL_CODE);
+                bankManagerPage.clickAddCustomerSubmit();
 
                 try {
                         String alertText = driver.switchTo().alert().getText();
@@ -81,11 +76,11 @@ public class BankManagerTest extends BaseTest {
         @Severity(SeverityLevel.NORMAL)
         @Description("Verify that the postal code field only accepts numeric characters.")
         public void verifyAddCustomerWithAlphaPostalCode() {
-                bankManagerPage.clickAddCustomerTab()
-                                .enterFirstName(TestData.NEW_CUSTOMER_FIRST_NAME)
-                                .enterLastName(TestData.NEW_CUSTOMER_LAST_NAME)
-                                .enterPostalCode(TestData.INVALID_POSTAL_CODE_ALPHA)
-                                .clickAddCustomerSubmit();
+                bankManagerPage.clickAddCustomerTab();
+                bankManagerPage.enterFirstName(TestData.NEW_CUSTOMER_FIRST_NAME);
+                bankManagerPage.enterLastName(TestData.NEW_CUSTOMER_LAST_NAME);
+                bankManagerPage.enterPostalCode(TestData.INVALID_POSTAL_CODE_ALPHA);
+                bankManagerPage.clickAddCustomerSubmit();
 
                 try {
                         String alertText = driver.switchTo().alert().getText();
@@ -102,11 +97,11 @@ public class BankManagerTest extends BaseTest {
         @Severity(SeverityLevel.MINOR)
         @Description("Verify that the system prevents adding a customer when all fields are empty.")
         public void verifyAddCustomerWithEmptyFields() {
-                bankManagerPage.clickAddCustomerTab()
-                                .enterFirstName(TestData.EMPTY_FIELD)
-                                .enterLastName(TestData.EMPTY_FIELD)
-                                .enterPostalCode(TestData.EMPTY_FIELD)
-                                .clickAddCustomerSubmit();
+                bankManagerPage.clickAddCustomerTab();
+                bankManagerPage.enterFirstName(TestData.EMPTY_FIELD);
+                bankManagerPage.enterLastName(TestData.EMPTY_FIELD);
+                bankManagerPage.enterPostalCode(TestData.EMPTY_FIELD);
+                bankManagerPage.clickAddCustomerSubmit();
 
                 try {
                         String alertText = driver.switchTo().alert().getText();
@@ -167,9 +162,9 @@ public class BankManagerTest extends BaseTest {
         public void verifyDeleteCustomerSuccessfully() {
                 bankManagerPage.addCustomer("Delete", "Me", "99999");
 
-                int countBefore = bankManagerPage.clickCustomersTab()
-                                .searchCustomer("Delete Me")
-                                .getCustomerCount();
+                bankManagerPage.clickCustomersTab();
+                bankManagerPage.searchCustomer("Delete Me");
+                int countBefore = bankManagerPage.getCustomerCount();
 
                 bankManagerPage.deleteCustomer("Delete Me");
 

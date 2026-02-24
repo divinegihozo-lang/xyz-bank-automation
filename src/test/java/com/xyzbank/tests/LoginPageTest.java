@@ -1,8 +1,5 @@
 package com.xyzbank.tests;
 
-import com.xyzbank.pages.CustomerLoginPage;
-import com.xyzbank.pages.BankManagerPage;
-import com.xyzbank.pages.LoginPage;
 import com.xyzbank.utils.BaseTest;
 import io.qameta.allure.*;
 import org.testng.Assert;
@@ -17,7 +14,6 @@ public class LoginPageTest extends BaseTest {
     @Severity(SeverityLevel.BLOCKER)
     @Description("Verify that the XYZ Bank login page loads and displays correctly.")
     public void verifyLoginPageLoads() {
-        LoginPage loginPage = new LoginPage(driver);
         Assert.assertTrue(loginPage.isPageLoaded(), "Login page should be loaded.");
     }
 
@@ -26,7 +22,6 @@ public class LoginPageTest extends BaseTest {
     @Severity(SeverityLevel.CRITICAL)
     @Description("Verify that the Customer Login button is visible on the main page.")
     public void verifyCustomerLoginButtonVisible() {
-        LoginPage loginPage = new LoginPage(driver);
         Assert.assertTrue(loginPage.isCustomerLoginButtonDisplayed(),
                 "Customer Login button should be visible.");
     }
@@ -36,7 +31,6 @@ public class LoginPageTest extends BaseTest {
     @Severity(SeverityLevel.CRITICAL)
     @Description("Verify that the Bank Manager Login button is visible on the main page.")
     public void verifyBankManagerLoginButtonVisible() {
-        LoginPage loginPage = new LoginPage(driver);
         Assert.assertTrue(loginPage.isBankManagerLoginButtonDisplayed(),
                 "Bank Manager Login button should be visible.");
     }
@@ -46,8 +40,7 @@ public class LoginPageTest extends BaseTest {
     @Severity(SeverityLevel.CRITICAL)
     @Description("Verify navigation to the customer login form.")
     public void verifyNavigateToCustomerLogin() {
-        LoginPage loginPage = new LoginPage(driver);
-        CustomerLoginPage customerLoginPage = loginPage.clickCustomerLogin();
+        loginPage.clickCustomerLogin();
         Assert.assertTrue(customerLoginPage.isCustomerDropdownDisplayed(),
                 "Customer login dropdown should be displayed.");
     }
@@ -57,9 +50,8 @@ public class LoginPageTest extends BaseTest {
     @Severity(SeverityLevel.CRITICAL)
     @Description("Verify navigation to the bank manager dashboard.")
     public void verifyNavigateToBankManagerDashboard() {
-        LoginPage loginPage = new LoginPage(driver);
-        BankManagerPage managerPage = loginPage.clickBankManagerLogin();
-        Assert.assertNotNull(managerPage,
+        loginPage.clickBankManagerLogin();
+        Assert.assertNotNull(bankManagerPage,
                 "Bank Manager dashboard page should load.");
     }
 }

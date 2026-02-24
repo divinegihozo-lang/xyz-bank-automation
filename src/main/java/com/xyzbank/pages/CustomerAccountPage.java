@@ -88,36 +88,32 @@ public class CustomerAccountPage {
 
     // ─── Deposit ──────────────────────────────────────────────────────────────
 
-    public CustomerAccountPage clickDepositTab() {
+    public void clickDepositTab() {
         waitUtils.waitForClickable(depositTab).click();
         // Wait for Deposit form label
         try {
             waitUtils.waitForVisible(org.openqa.selenium.By.xpath("//label[contains(text(),'Deposited')]"));
         } catch (Exception ignored) {
         }
-        return this;
     }
 
-    public CustomerAccountPage enterAmount(String amount) {
+    public void enterAmount(String amount) {
         amountInput.clear();
         amountInput.sendKeys(amount);
-        return this;
     }
 
-    public CustomerAccountPage clickSubmit() {
+    public void clickSubmit() {
         try {
             waitUtils.waitForClickable(submitButton).click();
         } catch (org.openqa.selenium.StaleElementReferenceException e) {
             driver.findElement(org.openqa.selenium.By.xpath("//button[@type='submit']")).click();
         }
-        return this;
     }
 
-    public CustomerAccountPage deposit(String amount) {
+    public void deposit(String amount) {
         clickDepositTab();
         enterAmount(amount);
         clickSubmit();
-        return this;
     }
 
     public boolean isDepositSuccessful() {
@@ -130,20 +126,18 @@ public class CustomerAccountPage {
 
     // ─── Withdrawal ───────────────────────────────────────────────────────────
 
-    public CustomerAccountPage clickWithdrawalTab() {
+    public void clickWithdrawalTab() {
         waitUtils.waitForClickable(withdrawalTab).click();
         try {
             waitUtils.waitForVisible(org.openqa.selenium.By.xpath("//label[contains(text(),'Withdrawn')]"));
         } catch (Exception ignored) {
         }
-        return this;
     }
 
-    public CustomerAccountPage withdraw(String amount) {
+    public void withdraw(String amount) {
         clickWithdrawalTab();
         enterAmount(amount);
         clickSubmit();
-        return this;
     }
 
     public boolean isTransactionFailed() {
@@ -156,9 +150,8 @@ public class CustomerAccountPage {
 
     // ─── Transactions ─────────────────────────────────────────────────────────
 
-    public CustomerAccountPage clickTransactionsTab() {
+    public void clickTransactionsTab() {
         waitUtils.waitForClickable(transactionsTab).click();
-        return this;
     }
 
     public List<WebElement> getTransactionRows() {
@@ -192,9 +185,8 @@ public class CustomerAccountPage {
 
     // ─── Navigation ───────────────────────────────────────────────────────────
 
-    public LoginPage clickLogout() {
+    public void clickLogout() {
         logoutButton.click();
-        return new LoginPage(driver);
     }
 
     public boolean isLogoutButtonDisplayed() {
