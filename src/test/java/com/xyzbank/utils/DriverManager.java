@@ -12,10 +12,19 @@ import java.time.Duration;
 public class DriverManager {
 
     private static final ThreadLocal<WebDriver> driverThreadLocal = new ThreadLocal<>();
-    private static final String BROWSER = System.getProperty("browser", "chrome");
-    private static final boolean HEADLESS = Boolean.parseBoolean(System.getProperty("headless", "false"));
+    private static final String BROWSER = getPropOrEnv("browser", "chrome");
+    private static final boolean HEADLESS = Boolean.parseBoolean(getPropOrEnv("headless", "false"));
 
-    private DriverManager() {}
+    private static String getPropOrEnv(String key, String defaultValue) {
+        String value = System.getProperty(key);
+        if (value == null || value.isEmpty()) {
+            value = System.getenv(key.toUpperCase());
+        }
+        return (value != null && !value.isEmpty()) ? value : defaultValue;
+    }
+
+    private DriverManager() {
+    }
 
     public static WebDriver getDriver() {
         if (driverThreadLocal.get() == null || !isSessionAlive(driverThreadLocal.get())) {
@@ -40,7 +49,8 @@ public class DriverManager {
             case "firefox":
                 WebDriverManager.firefoxdriver().setup();
                 FirefoxOptions firefoxOptions = new FirefoxOptions();
-                if (HEADLESS) firefoxOptions.addArguments("--headless");
+                if (HEADLESS)
+                    firefoxOptions.addArguments("--headless");
                 driver = new FirefoxDriver(firefoxOptions);
                 break;
             case "chrome":
