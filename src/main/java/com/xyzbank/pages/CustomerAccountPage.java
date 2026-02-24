@@ -1,6 +1,5 @@
 package com.xyzbank.pages;
 
-import com.xyzbank.helpers.WaitUtils;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
