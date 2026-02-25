@@ -21,8 +21,6 @@ public class TestWatcherExtension implements AfterEachCallback {
                 }
             }
         }
-        // Always quit driver after test (moved from @AfterEach to ensure it happens
-        // after screenshot)
         DriverManager.quitDriver();
     }
 
