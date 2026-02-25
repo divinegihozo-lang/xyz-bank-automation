@@ -13,20 +13,17 @@ public final class WaitUtils {
     private final WebDriverWait wait;
 
     public WaitUtils(WebDriver driver) {
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(30));
     }
 
-    @SuppressWarnings("UnusedReturnValue")
     public WebElement waitForVisible(WebElement element) {
         return wait.until(ExpectedConditions.visibilityOf(element));
     }
 
-    @SuppressWarnings("UnusedReturnValue")
     public WebElement waitForVisible(By locator) {
         return wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
     }
 
-    @SuppressWarnings("UnusedReturnValue")
     public WebElement waitForClickable(WebElement element) {
         return wait.until(ExpectedConditions.elementToBeClickable(element));
     }

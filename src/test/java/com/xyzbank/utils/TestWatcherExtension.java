@@ -1,29 +1,38 @@
 package com.xyzbank.utils;
 
 import io.qameta.allure.Attachment;
+import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
-import org.junit.jupiter.api.extension.TestWatcher;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 
-import java.util.Optional;
-
-public class TestWatcherExtension implements TestWatcher {
+public class TestWatcherExtension implements AfterEachCallback {
 
     @Override
-    public void testFailed(ExtensionContext context, Throwable cause) {
+    public void afterEach(ExtensionContext context) {
         Object testInstance = context.getRequiredTestInstance();
         if (testInstance instanceof BaseTest) {
             WebDriver driver = ((BaseTest) testInstance).getDriver();
             if (driver != null) {
-                captureScreenshot(context.getDisplayName(), driver);
+                // Check if test failed
+                if (context.getExecutionException().isPresent()) {
+                    captureScreenshot(context.getDisplayName(), driver);
+                }
             }
         }
+        // Always quit driver after test (moved from @AfterEach to ensure it happens
+        // after screenshot)
+        DriverManager.quitDriver();
     }
 
-    @Attachment(value = "Screenshot - {testName}", type = "image/png")
+    @Attachment(value = "Failure Screenshot - {testName}", type = "image/png")
     public byte[] captureScreenshot(String testName, WebDriver driver) {
-        return ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
+        try {
+            return ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
+        } catch (Exception e) {
+            System.err.println("Failed to capture screenshot: " + e.getMessage());
+            return new byte[0];
+        }
     }
 }

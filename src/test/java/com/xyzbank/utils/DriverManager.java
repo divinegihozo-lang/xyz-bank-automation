@@ -12,8 +12,16 @@ import java.time.Duration;
 public final class DriverManager {
 
     private static final ThreadLocal<WebDriver> driverThreadLocal = new ThreadLocal<>();
-    private static final String BROWSER = ConfigUtils.getPropOrEnv("browser", "chrome");
-    private static final boolean HEADLESS = Boolean.parseBoolean(ConfigUtils.getPropOrEnv("headless", "false"));
+    private static final String BROWSER = getPropOrEnv("browser", "chrome");
+    private static final boolean HEADLESS = Boolean.parseBoolean(getPropOrEnv("headless", "false"));
+
+    private static String getPropOrEnv(String key, String defaultValue) {
+        String value = System.getProperty(key);
+        if (value == null || value.isEmpty()) {
+            value = System.getenv(key.toUpperCase().replace(".", "_"));
+        }
+        return (value != null && !value.isEmpty()) ? value : defaultValue;
+    }
 
     private DriverManager() {
     }
@@ -66,7 +74,7 @@ public final class DriverManager {
         }
         driver.manage().window().maximize();
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
-        driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(60)); // was 30, bumped up
+        driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(120)); // increased for CI
         driverThreadLocal.set(driver);
     }
 
