@@ -191,10 +191,15 @@ public final class BankManagerPage {
 
     @Step("Search for customer: {name}")
     public void searchCustomer(String name) {
+        clickCustomersTab();
         waitUtils.waitForVisible(searchInput).clear();
+        // Sometimes clear() doesn't work well, send backspaces
+        searchInput.sendKeys(org.openqa.selenium.Keys.CONTROL + "a");
+        searchInput.sendKeys(org.openqa.selenium.Keys.BACK_SPACE);
         searchInput.sendKeys(name);
+        // Wait for filter to apply
         try {
-            Thread.sleep(500);
+            Thread.sleep(800);
         } catch (InterruptedException ignored) {
         }
     }
@@ -202,12 +207,22 @@ public final class BankManagerPage {
     @Step("Delete customer: {customerName}")
     public void deleteCustomer(String customerName) {
         searchCustomer(customerName);
-        for (WebElement row : customerRows) {
-            if (row.getText().contains(customerName)) {
-                WebElement deleteBtn = row.findElement(
-                        org.openqa.selenium.By.xpath(".//button[contains(text(),'Delete')]"));
-                deleteBtn.click();
-                // Wait a bit for list to refresh
+        // Use direct find elements to ensure we get the latest state after search
+        List<WebElement> rows = driver.findElements(
+                org.openqa.selenium.By.xpath("//table[contains(@class,'table')]//tbody/tr"));
+
+        for (WebElement row : rows) {
+            String rowText = row.getText().toLowerCase();
+            if (rowText.contains(customerName.toLowerCase())) {
+                try {
+                    WebElement deleteBtn = row.findElement(
+                            org.openqa.selenium.By.xpath(".//button[contains(text(),'Delete')]"));
+                    waitUtils.waitForClickable(deleteBtn).click();
+                } catch (Exception e) {
+                    // Fallback to direct button find if row interaction is tricky
+                    driver.findElement(org.openqa.selenium.By.xpath("//button[text()='Delete']")).click();
+                }
+                // Wait for the record to disappear
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException ignored) {
@@ -219,15 +234,13 @@ public final class BankManagerPage {
 
     @Step("Check if customer is present: {customerName}")
     public boolean isCustomerPresent(String customerName) {
-        clickCustomersTab();
-        try {
-            waitUtils.waitForVisible(
-                    org.openqa.selenium.By.xpath("//table[@class='table table-bordered table-striped']/tbody/tr"));
-        } catch (Exception ignored) {
-        }
         searchCustomer(customerName);
-        for (WebElement row : customerRows) {
-            if (row.getText().contains(customerName)) {
+
+        List<WebElement> rows = driver.findElements(
+                org.openqa.selenium.By.xpath("//table[contains(@class,'table')]//tbody/tr"));
+
+        for (WebElement row : rows) {
+            if (row.getText().toLowerCase().contains(customerName.toLowerCase())) {
                 return true;
             }
         }

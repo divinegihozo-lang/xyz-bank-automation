@@ -28,6 +28,10 @@ public final class WaitUtils {
         return wait.until(ExpectedConditions.elementToBeClickable(element));
     }
 
+    public WebElement waitForClickable(By locator) {
+        return wait.until(ExpectedConditions.elementToBeClickable(locator));
+    }
+
     public boolean waitForAlertPresent() {
         try {
             wait.until(ExpectedConditions.alertIsPresent());

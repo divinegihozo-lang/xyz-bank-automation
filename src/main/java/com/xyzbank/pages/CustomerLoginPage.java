@@ -43,7 +43,11 @@ public final class CustomerLoginPage {
 
     @Step("Verify if Customer dropdown is displayed")
     public boolean isCustomerDropdownDisplayed() {
-        return customerDropdown.isDisplayed();
+        try {
+            return waitUtils.waitForVisible(customerDropdown).isDisplayed();
+        } catch (Exception ignored) {
+            return false;
+        }
     }
 
 }

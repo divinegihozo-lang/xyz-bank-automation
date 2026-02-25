@@ -191,26 +191,20 @@ jobs:
                   labels     = {l["name"]: l["value"] for l in data.get("labels", [])}
                   test_class = labels.get("testClass", "").split(".")[-1] or "Unknown"
 
-                  all_steps = []
-                  for stage in data.get("beforeStages", []):
-                      for s in stage.get("steps", []):
-                          all_steps.append(s.get("name", "Step"))
-                  for s in data.get("steps", []):
-                      all_steps.append(s.get("name", "Step"))
-                  
-                  steps_list = [f"{i}. {name}" for i, name in enumerate(all_steps, 1)]
+                  steps_list = []
+                  for i, s in enumerate(data.get("steps", []), 1):
+                      steps_list.append(f"{i}. {s.get('name', 'Step')}")
                   steps_str = "<br>".join(steps_list) if steps_list else "1. See Allure report for full trace."
 
-                  desc = data.get("description", "No description provided.")
-                  impact = labels.get("impact", "High: Immediate attention required.")
-
-                  if "**Impact:**" in desc:
-                      parts = desc.split("**Impact:**")
-                      desc = parts[0].strip()
-                      if impact == "High: Immediate attention required.":
-                          impact = parts[1].strip()
-                  
-                  desc = desc.replace("\n", "<br>")
+                  desc_raw = data.get("description", "No description provided.")
+                  desc     = desc_raw
+                  impact   = "High: Immediate attention required."
+                  if "**Impact:**" in desc_raw:
+                      parts  = desc_raw.split("**Impact:**")
+                      desc   = parts[0].strip().replace("\n", "<br>")
+                      impact = parts[1].strip()
+                  else:
+                      desc = desc.replace("\n", "<br>")
 
                   severity = labels.get("severity", "normal").capitalize()
                   msg      = data.get("statusDetails", {}).get("message", "No assertion message available.")
@@ -474,23 +468,17 @@ jobs:
                       labels     = {l["name"]: l["value"] for l in data.get("labels", [])}
                       test_class = labels.get("testClass", "").split(".")[-1] or "Unknown"
 
-                      all_steps = []
-                      for stage in data.get("beforeStages", []):
-                          for s in stage.get("steps", []):
-                              all_steps.append(s.get("name", "Step"))
-                      for s in data.get("steps", []):
-                          all_steps.append(s.get("name", "Step"))
-
-                      steps_list = [f"{i}. {name}" for i, name in enumerate(all_steps, 1)]
+                      steps_list = []
+                      for i, s in enumerate(data.get("steps", []), 1):
+                          steps_list.append(f"{i}. {s.get('name', 'Step')}")
                       steps_str = "\n".join(steps_list) if steps_list else "1. See Allure report for detailed execution trace."
 
-                      desc = data.get("description", "No description provided.")
-                      impact = labels.get("impact", "High: Test failure indicates a defect that needs immediate investigation.")
+                      desc   = data.get("description", "No description provided.")
+                      impact = "High: Test failure indicates a defect that needs immediate investigation."
                       if "**Impact:**" in desc:
-                          parts = desc.split("**Impact:**")
-                          desc = parts[0].strip()
-                          if impact == "High: Test failure indicates a defect that needs immediate investigation.":
-                              impact = parts[1].strip()
+                          parts  = desc.split("**Impact:**")
+                          desc   = parts[0].strip()
+                          impact = parts[1].strip()
 
                       severity = labels.get("severity", "normal").capitalize()
                       priority = "High" if severity in ["Blocker", "Critical"] else ("Medium" if severity == "Normal" else "Low")

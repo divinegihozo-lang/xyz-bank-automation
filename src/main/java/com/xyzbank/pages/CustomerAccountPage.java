@@ -1,6 +1,7 @@
 package com.xyzbank.pages;
 
 import io.qameta.allure.Step;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -14,7 +15,7 @@ public final class CustomerAccountPage {
     private final WebDriver driver;
     private final WaitUtils waitUtils;
 
-    @FindBy(xpath = "//strong[@class='ng-binding'][1]")
+    @FindBy(xpath = "//div[contains(text(),'Welcome')]/strong")
     private WebElement customerName;
 
     @FindBy(id = "accountSelect")
@@ -26,21 +27,14 @@ public final class CustomerAccountPage {
     @FindBy(xpath = "//button[contains(text(),'Deposit')]")
     private WebElement depositTab;
 
-    @FindBy(xpath = "//button[contains(text(),'Withdraw')]")
+    @FindBy(xpath = "//button[contains(@ng-click,'Withdrawl')]")
     private WebElement withdrawalTab;
 
-    @FindBy(xpath = "//button[contains(text(),'Transactions')]")
-    private WebElement transactionsTab;
-
-    @FindBy(xpath = "//button[contains(text(),'Logout')]")
+    @FindBy(xpath = "//button[contains(@class,'logout')]")
     private WebElement logoutButton;
 
-    // Deposit form
-    @FindBy(xpath = "//input[@placeholder='amount']")
-    private WebElement amountInput;
-
-    @FindBy(xpath = "//button[@type='submit']")
-    private WebElement submitButton;
+    @FindBy(xpath = "//button[contains(@ng-click,'transactions')]")
+    private WebElement transactionsTab;
 
     @FindBy(xpath = "//span[contains(text(),'Deposit Successful')]")
     private WebElement depositSuccessMessage;
@@ -48,9 +42,8 @@ public final class CustomerAccountPage {
     @FindBy(xpath = "//span[contains(text(),'Transaction Failed')]")
     private WebElement transactionFailedMessage;
 
-    // Transactions table
-    @FindBy(xpath = "//table[@class='table table-bordered table-striped']//tr[position()>1]")
-    private List<WebElement> transactionRows;
+    @FindBy(xpath = "//span[contains(text(),'Withdrawl Successful')]")
+    private WebElement withdrawalSuccessMessage;
 
     @FindBy(xpath = "//button[text()='Reset']")
     private WebElement resetButton;
@@ -66,40 +59,56 @@ public final class CustomerAccountPage {
         return waitUtils.waitForVisible(customerName).getText();
     }
 
-    @Step("Get current account balance")
-    public String getAccountBalance() {
-        return waitUtils.waitForVisible(accountBalance).getText().trim();
+    @Step("Get selected account number")
+    public String getSelectedAccountNumber() {
+        return new org.openqa.selenium.support.ui.Select(accountDropdown).getFirstSelectedOption().getText();
     }
 
-    // ─── Deposit ──────────────────────────────────────────────────────────────
+    @Step("Select account number: {accountNumber}")
+    public void selectAccount(String accountNumber) {
+        new org.openqa.selenium.support.ui.Select(accountDropdown).selectByVisibleText(accountNumber);
+    }
+
+    @Step("Get current account balance")
+    public String getAccountBalance() {
+        return waitUtils.waitForVisible(accountBalance).getText();
+    }
 
     @Step("Click on Deposit tab")
     public void clickDepositTab() {
         waitUtils.waitForClickable(depositTab).click();
-        try {
-            waitUtils.waitForVisible(org.openqa.selenium.By.xpath("//label[contains(text(),'Deposited')]"));
-        } catch (Exception ignored) {
-        }
+    }
+
+    @Step("Click on Withdrawl tab")
+    public void clickWithdrawlTab() {
+        waitUtils.waitForClickable(withdrawalTab).click();
     }
 
     @Step("Enter amount: {amount}")
     public void enterAmount(String amount) {
-        amountInput.clear();
-        amountInput.sendKeys(amount);
+        waitUtils.waitForVisible(By.xpath("//input[@placeholder='amount']")).sendKeys(amount);
     }
 
     @Step("Click on Submit button")
     public void clickSubmit() {
-        try {
-            waitUtils.waitForClickable(submitButton).click();
-        } catch (org.openqa.selenium.StaleElementReferenceException e) {
-            driver.findElement(org.openqa.selenium.By.xpath("//button[@type='submit']")).click();
-        }
+        waitUtils.waitForClickable(By.xpath("//button[@type='submit']")).click();
     }
 
     @Step("Deposit amount: {amount}")
     public void deposit(String amount) {
         clickDepositTab();
+        enterAmount(amount);
+        clickSubmit();
+    }
+
+    @Step("Withdraw amount: {amount}")
+    public void withdraw(String amount) {
+        clickWithdrawlTab();
+        // Small wait for transition in UI
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException ignored) {
+        }
         enterAmount(amount);
         clickSubmit();
     }
@@ -113,34 +122,14 @@ public final class CustomerAccountPage {
         }
     }
 
-    // ─── Withdrawal ───────────────────────────────────────────────────────────
-
-    @Step("Click on Withdrawal tab")
-    public void clickWithdrawalTab() {
-        waitUtils.waitForClickable(withdrawalTab).click();
+    @Step("Verify if withdrawal was successful")
+    public boolean isWithdrawalSuccessful() {
         try {
-            waitUtils.waitForVisible(org.openqa.selenium.By.xpath("//label[contains(text(),'Withdrawn')]"));
-        } catch (Exception ignored) {
-        }
-    }
-
-    @Step("Withdraw amount: {amount}")
-    public void withdraw(String amount) {
-        clickWithdrawalTab();
-        enterAmount(amount);
-        clickSubmit();
-    }
-
-    @Step("Verify if transaction failed")
-    public boolean isTransactionFailed() {
-        try {
-            return transactionFailedMessage.isDisplayed();
+            return waitUtils.waitForVisible(withdrawalSuccessMessage).isDisplayed();
         } catch (Exception ignored) {
             return false;
         }
     }
-
-    // ─── Transactions ─────────────────────────────────────────────────────────
 
     @Step("Click on Transactions tab")
     public void clickTransactionsTab() {
@@ -150,33 +139,40 @@ public final class CustomerAccountPage {
     @Step("Get transaction count")
     public int getTransactionCount() {
         try {
-            waitUtils.waitForVisible(org.openqa.selenium.By
-                    .xpath("//table[@class='table table-bordered table-striped']//tr[position()>1]"));
+            waitUtils.waitForVisible(By.xpath("//table[contains(@class,'table')]//tbody/tr"));
+            return driver.findElements(By.xpath("//table[contains(@class,'table')]//tbody/tr")).size();
         } catch (Exception ignored) {
-        }
-        return transactionRows.size();
-    }
-
-    @Step("Verify if Reset button is displayed")
-    public boolean isResetButtonDisplayed() {
-        try {
-            return resetButton.isDisplayed();
-        } catch (Exception ignored) {
-            return false;
+            return 0;
         }
     }
-
-    // ─── Navigation ───────────────────────────────────────────────────────────
 
     @Step("Click on Logout button")
     public void clickLogout() {
-        logoutButton.click();
+        waitUtils.waitForClickable(logoutButton).click();
     }
 
     @Step("Verify if Logout button is displayed")
     public boolean isLogoutButtonDisplayed() {
         try {
             return waitUtils.waitForVisible(logoutButton).isDisplayed();
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    @Step("Verify if Reset button is displayed")
+    public boolean isResetButtonDisplayed() {
+        try {
+            return waitUtils.waitForVisible(resetButton).isDisplayed();
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    @Step("Verify if transaction failed")
+    public boolean isTransactionFailed() {
+        try {
+            return waitUtils.waitForVisible(transactionFailedMessage).isDisplayed();
         } catch (Exception ignored) {
             return false;
         }
