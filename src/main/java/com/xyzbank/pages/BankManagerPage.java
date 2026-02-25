@@ -10,7 +10,8 @@ import org.openqa.selenium.support.ui.Select;
 
 import java.util.List;
 
-public class BankManagerPage {
+@SuppressWarnings({ "unused", "MismatchedQueryAndUpdateOfCollection" })
+public final class BankManagerPage {
 
     private final WebDriver driver;
     private final WaitUtils waitUtils;
@@ -24,9 +25,6 @@ public class BankManagerPage {
 
     @FindBy(xpath = "//button[contains(text(),'Customers')]")
     private WebElement customersTab;
-
-    @FindBy(xpath = "//button[text()='Home']")
-    private WebElement homeButton;
 
     // Add Customer Form
     @FindBy(xpath = "//input[@placeholder='First Name']")
@@ -95,6 +93,7 @@ public class BankManagerPage {
     }
 
     @Step("Add new customer: {firstName} {lastName}")
+    @SuppressWarnings("UnusedReturnValue")
     public String addCustomer(String firstName, String lastName, String postalCode) {
         clickAddCustomerTab();
         enterFirstName(firstName);
@@ -109,7 +108,7 @@ public class BankManagerPage {
                 return alertText;
             }
             return "";
-        } catch (Exception e) {
+        } catch (Exception ignored) {
             return "";
         }
     }
@@ -159,6 +158,7 @@ public class BankManagerPage {
     }
 
     @Step("Open new account for customer: {customerName} with currency: {currency}")
+    @SuppressWarnings("UnusedReturnValue")
     public String openAccount(String customerName, String currency) {
         clickOpenAccountTab();
         selectCustomerForAccount(customerName);
@@ -172,7 +172,7 @@ public class BankManagerPage {
                 return alertText;
             }
             return "";
-        } catch (Exception e) {
+        } catch (Exception ignored) {
             return "";
         }
     }
@@ -182,11 +182,6 @@ public class BankManagerPage {
     @Step("Click on Customers tab")
     public void clickCustomersTab() {
         waitUtils.waitForClickable(customersTab).click();
-    }
-
-    @Step("Get customer rows")
-    public List<WebElement> getCustomerRows() {
-        return customerRows;
     }
 
     @Step("Get customer count")
@@ -239,8 +234,4 @@ public class BankManagerPage {
         return false;
     }
 
-    @Step("Click on Home button")
-    public void clickHome() {
-        homeButton.click();
-    }
 }

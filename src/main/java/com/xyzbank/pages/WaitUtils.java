@@ -8,7 +8,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 
-public class WaitUtils {
+public final class WaitUtils {
 
     private final WebDriverWait wait;
 
@@ -16,31 +16,26 @@ public class WaitUtils {
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(15));
     }
 
-    public WaitUtils(WebDriver driver, int timeoutSeconds) {
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
-    }
-
+    @SuppressWarnings("UnusedReturnValue")
     public WebElement waitForVisible(WebElement element) {
         return wait.until(ExpectedConditions.visibilityOf(element));
     }
 
-    public WebElement waitForClickable(WebElement element) {
-        return wait.until(ExpectedConditions.elementToBeClickable(element));
-    }
-
+    @SuppressWarnings("UnusedReturnValue")
     public WebElement waitForVisible(By locator) {
         return wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
     }
 
-    public boolean waitForTextPresent(WebElement element, String text) {
-        return wait.until(ExpectedConditions.textToBePresentInElement(element, text));
+    @SuppressWarnings("UnusedReturnValue")
+    public WebElement waitForClickable(WebElement element) {
+        return wait.until(ExpectedConditions.elementToBeClickable(element));
     }
 
     public boolean waitForAlertPresent() {
         try {
             wait.until(ExpectedConditions.alertIsPresent());
             return true;
-        } catch (Exception e) {
+        } catch (Exception ignored) {
             return false;
         }
     }
@@ -49,7 +44,4 @@ public class WaitUtils {
         wait.until(condition);
     }
 
-    public boolean waitForInvisibility(WebElement element) {
-        return wait.until(ExpectedConditions.invisibilityOf(element));
-    }
 }

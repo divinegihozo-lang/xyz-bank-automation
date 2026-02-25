@@ -19,14 +19,47 @@
         <testng.version>7.9.0</testng.version>
         <allure.version>2.25.0</allure.version>
         <allure.testng.version>2.25.0</allure.testng.version>
-        <webdrivermanager.version>5.7.0</webdrivermanager.version>
+        <webdrivermanager.version>6.3.3</webdrivermanager.version>
         <aspectj.version>1.9.21</aspectj.version>
         <slf4j.version>2.0.12</slf4j.version>
         <!-- Defaults for local runs -->
         <headless>false</headless>
         <browser>chrome</browser>
         <base.url>https://www.globalsqa.com/angularJs-protractor/BankingProject/#/login</base.url>
+        <jackson.version>2.18.2</jackson.version>
+        <bouncycastle.version>1.83</bouncycastle.version>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- Enforce secure versions of transitive dependencies -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk18on</artifactId>
+                <version>${bouncycastle.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcpkix-jdk18on</artifactId>
+                <version>${bouncycastle.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <!-- Selenium WebDriver -->
@@ -64,12 +97,7 @@
             <version>${slf4j.version}</version>
         </dependency>
 
-        <!-- Apache Commons Lang -->
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.14.0</version>
-        </dependency>
+
     </dependencies>
 
     <build>
@@ -107,6 +135,11 @@
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
                     <encoding>${project.build.sourceEncoding}</encoding>
+                    <showWarnings>true</showWarnings>
+                    <showDeprecation>true</showDeprecation>
+                    <compilerArgs>
+                        <arg>-Xlint:all</arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
 

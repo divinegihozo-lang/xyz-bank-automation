@@ -1,6 +1,9 @@
 package com.xyzbank.utils;
 
-import com.xyzbank.pages.*;
+import com.xyzbank.pages.BankManagerPage;
+import com.xyzbank.pages.CustomerAccountPage;
+import com.xyzbank.pages.CustomerLoginPage;
+import com.xyzbank.pages.LoginPage;
 import io.qameta.allure.Attachment;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
@@ -16,7 +19,7 @@ public class BaseTest {
     protected BankManagerPage bankManagerPage;
     protected CustomerLoginPage customerLoginPage;
     protected CustomerAccountPage accountPage;
-    protected static final String BASE_URL = System.getProperty("base.url",
+    protected static final String BASE_URL = ConfigUtils.getPropOrEnv("base.url",
             "https://www.globalsqa.com/angularJs-protractor/BankingProject/#/login");
 
     @BeforeMethod(alwaysRun = true)

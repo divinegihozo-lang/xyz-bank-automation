@@ -10,8 +10,10 @@ services:
     environment:
       - HEADLESS=true
       - BROWSER=chrome
+      - BASE_URL=https://www.globalsqa.com/angularJs-protractor/BankingProject/#/login
     volumes:
       - allure-results:/app/target/allure-results
+    shm_size: 2gb
     networks:
       - xyz-bank-network
 
@@ -33,6 +35,7 @@ services:
 
 volumes:
   allure-results:
+
 
 networks:
   xyz-bank-network:

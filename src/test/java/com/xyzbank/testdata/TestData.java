@@ -1,12 +1,14 @@
 package com.xyzbank.testdata;
 
-public class TestData {
+public final class TestData {
+    private TestData() {
+        // Utility class
+    }
+
     // Customer Names
     public static final String CUSTOMER_HARRY = "Harry Potter";
     public static final String CUSTOMER_HERMIONE = "Hermoine Granger";
     public static final String CUSTOMER_RON = "Ron Weasly";
-    public static final String CUSTOMER_ALBUS = "Albus Dumbledore";
-    public static final String CUSTOMER_NEVILLE = "Neville Longbottom";
 
     // New Customer Data
     public static final String NEW_CUSTOMER_FIRST_NAME = "John";
@@ -21,7 +23,6 @@ public class TestData {
     // Currencies
     public static final String CURRENCY_DOLLAR = "Dollar";
     public static final String CURRENCY_POUND = "Pound";
-    public static final String CURRENCY_RUPEE = "Rupee";
 
     // Transaction Amounts
     public static final String DEPOSIT_AMOUNT_VALID = "1000";

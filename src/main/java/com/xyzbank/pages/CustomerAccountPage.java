@@ -5,11 +5,11 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
-import org.openqa.selenium.support.ui.Select;
 
 import java.util.List;
 
-public class CustomerAccountPage {
+@SuppressWarnings({ "unused", "MismatchedQueryAndUpdateOfCollection" })
+public final class CustomerAccountPage {
 
     private final WebDriver driver;
     private final WaitUtils waitUtils;
@@ -20,14 +20,8 @@ public class CustomerAccountPage {
     @FindBy(id = "accountSelect")
     private WebElement accountDropdown;
 
-    @FindBy(xpath = "//div[contains(@class,'center')]/strong[1]")
-    private WebElement accountNumber;
-
     @FindBy(xpath = "//div[contains(@class,'center')]/strong[2]")
     private WebElement accountBalance;
-
-    @FindBy(xpath = "//div[contains(@class,'center')]/strong[3]")
-    private WebElement accountCurrency;
 
     @FindBy(xpath = "//button[contains(text(),'Deposit')]")
     private WebElement depositTab;
@@ -48,9 +42,6 @@ public class CustomerAccountPage {
     @FindBy(xpath = "//button[@type='submit']")
     private WebElement submitButton;
 
-    @FindBy(xpath = "//span[contains(@class,'error')]")
-    private WebElement errorMessage;
-
     @FindBy(xpath = "//span[contains(text(),'Deposit Successful')]")
     private WebElement depositSuccessMessage;
 
@@ -63,9 +54,6 @@ public class CustomerAccountPage {
 
     @FindBy(xpath = "//button[text()='Reset']")
     private WebElement resetButton;
-
-    @FindBy(xpath = "//button[text()='Back']")
-    private WebElement backButton;
 
     public CustomerAccountPage(WebDriver driver) {
         this.driver = driver;
@@ -81,12 +69,6 @@ public class CustomerAccountPage {
     @Step("Get current account balance")
     public String getAccountBalance() {
         return waitUtils.waitForVisible(accountBalance).getText().trim();
-    }
-
-    @Step("Select account number: {accountNo}")
-    public void selectAccount(String accountNo) {
-        Select select = new Select(accountDropdown);
-        select.selectByVisibleText(accountNo);
     }
 
     // ─── Deposit ──────────────────────────────────────────────────────────────
@@ -126,7 +108,7 @@ public class CustomerAccountPage {
     public boolean isDepositSuccessful() {
         try {
             return waitUtils.waitForVisible(depositSuccessMessage).isDisplayed();
-        } catch (Exception e) {
+        } catch (Exception ignored) {
             return false;
         }
     }
@@ -153,7 +135,7 @@ public class CustomerAccountPage {
     public boolean isTransactionFailed() {
         try {
             return transactionFailedMessage.isDisplayed();
-        } catch (Exception e) {
+        } catch (Exception ignored) {
             return false;
         }
     }
@@ -163,11 +145,6 @@ public class CustomerAccountPage {
     @Step("Click on Transactions tab")
     public void clickTransactionsTab() {
         waitUtils.waitForClickable(transactionsTab).click();
-    }
-
-    @Step("Get transaction rows")
-    public List<WebElement> getTransactionRows() {
-        return transactionRows;
     }
 
     @Step("Get transaction count")
@@ -184,16 +161,7 @@ public class CustomerAccountPage {
     public boolean isResetButtonDisplayed() {
         try {
             return resetButton.isDisplayed();
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    @Step("Verify if Reset button is enabled")
-    public boolean isResetButtonEnabled() {
-        try {
-            return resetButton.isEnabled();
-        } catch (Exception e) {
+        } catch (Exception ignored) {
             return false;
         }
     }
@@ -209,7 +177,7 @@ public class CustomerAccountPage {
     public boolean isLogoutButtonDisplayed() {
         try {
             return waitUtils.waitForVisible(logoutButton).isDisplayed();
-        } catch (Exception e) {
+        } catch (Exception ignored) {
             return false;
         }
     }

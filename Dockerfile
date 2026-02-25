@@ -1,7 +1,7 @@
 # ─── Stage 1: Test Runner (Java 21 + Chrome) ──────────────────────────────────
 FROM maven:3.9.6-eclipse-temurin-21 AS builder
 
-# Install Google Chrome dependencies and Chrome itself
+# Install dependencies for Google Chrome
 RUN apt-get update && apt-get install -y \
     wget \
     gnupg \
@@ -9,10 +9,15 @@ RUN apt-get update && apt-get install -y \
     apt-transport-https \
     curl \
     unzip \
-    --no-install-recommends \
-    && wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor > /usr/share/keyrings/google-chrome.gpg \
+    libnss3 \
+    libgconf-2-4 \
+    libfontconfig1 \
+    --no-install-recommends
+
+# Install Google Chrome
+RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor > /usr/share/keyrings/google-chrome.gpg \
     && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" \
-        > /etc/apt/sources.list.d/google-chrome.list \
+    > /etc/apt/sources.list.d/google-chrome.list \
     && apt-get update \
     && apt-get install -y google-chrome-stable \
     && rm -rf /var/lib/apt/lists/*
@@ -28,10 +33,12 @@ RUN mvn dependency:go-offline -B
 COPY src ./src
 
 # Set default command to run tests in headless mode
+# The CMD uses system properties which can be overridden by docker-compose environment variables
 CMD ["mvn", "clean", "test", "-Dheadless=true", "-Dbrowser=chrome"]
 
-# ─── Stage 2: Allure Report Generator ─────────────────────────────────────────
-# This stage is optional if using the Allure Docker Service in docker-compose
+# ─── Stage 2: Allure Report Generator (Standalone) ───────────────────────────
+# This stage is used if you want to build a self-contained report image. 
+# Better to use Allure Docker Service in docker-compose for real-time updates.
 FROM eclipse-temurin:21-jre-jammy AS report
 
 RUN apt-get update && apt-get install -y wget unzip python3 \
@@ -43,11 +50,10 @@ RUN apt-get update && apt-get install -y wget unzip python3 \
 
 WORKDIR /app
 
-# Copy allure results from a previous RUN in the builder stage (if executed)
-# Note: In a standard CI/CD, you might skip this and use volume mounts
+# In standalone mode, we assume results are copied or mounted
 # COPY --from=builder /app/target/allure-results ./allure-results
 
-# Command to serve the report
 EXPOSE 8080
-CMD ["python3", "-m", "http.server", "8080"]
 
+# Script to generate and serve
+CMD ["sh", "-c", "allure generate allure-results -o allure-report --clean && python3 -m http.server 8080 -d allure-report"]

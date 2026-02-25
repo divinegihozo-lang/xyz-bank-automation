@@ -9,19 +9,11 @@ import org.openqa.selenium.firefox.FirefoxOptions;
 
 import java.time.Duration;
 
-public class DriverManager {
+public final class DriverManager {
 
     private static final ThreadLocal<WebDriver> driverThreadLocal = new ThreadLocal<>();
-    private static final String BROWSER = getPropOrEnv("browser", "chrome");
-    private static final boolean HEADLESS = Boolean.parseBoolean(getPropOrEnv("headless", "false"));
-
-    private static String getPropOrEnv(String key, String defaultValue) {
-        String value = System.getProperty(key);
-        if (value == null || value.isEmpty()) {
-            value = System.getenv(key.toUpperCase());
-        }
-        return (value != null && !value.isEmpty()) ? value : defaultValue;
-    }
+    private static final String BROWSER = ConfigUtils.getPropOrEnv("browser", "chrome");
+    private static final boolean HEADLESS = Boolean.parseBoolean(ConfigUtils.getPropOrEnv("headless", "false"));
 
     private DriverManager() {
     }

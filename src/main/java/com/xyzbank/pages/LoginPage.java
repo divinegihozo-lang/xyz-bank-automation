@@ -6,7 +6,8 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
-public class LoginPage {
+@SuppressWarnings("unused")
+public final class LoginPage {
 
     private final WaitUtils waitUtils;
 
@@ -38,7 +39,7 @@ public class LoginPage {
     public boolean isPageLoaded() {
         try {
             return waitUtils.waitForVisible(bankTitle).isDisplayed();
-        } catch (Exception e) {
+        } catch (Exception ignored) {
             return false;
         }
     }
@@ -47,7 +48,7 @@ public class LoginPage {
     public boolean isCustomerLoginButtonDisplayed() {
         try {
             return waitUtils.waitForVisible(customerLoginButton).isDisplayed();
-        } catch (Exception e) {
+        } catch (Exception ignored) {
             return false;
         }
     }
@@ -56,7 +57,7 @@ public class LoginPage {
     public boolean isBankManagerLoginButtonDisplayed() {
         try {
             return waitUtils.waitForVisible(bankManagerLoginButton).isDisplayed();
-        } catch (Exception e) {
+        } catch (Exception ignored) {
             return false;
         }
     }
