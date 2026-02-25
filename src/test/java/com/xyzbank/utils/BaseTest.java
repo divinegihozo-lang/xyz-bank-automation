@@ -4,14 +4,12 @@ import com.xyzbank.pages.BankManagerPage;
 import com.xyzbank.pages.CustomerAccountPage;
 import com.xyzbank.pages.CustomerLoginPage;
 import com.xyzbank.pages.LoginPage;
-import io.qameta.allure.Attachment;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.TakesScreenshot;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.WebDriver;
-import org.testng.ITestResult;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 
+@ExtendWith(TestWatcherExtension.class)
 public class BaseTest {
 
     protected WebDriver driver;
@@ -22,7 +20,11 @@ public class BaseTest {
     protected static final String BASE_URL = ConfigUtils.getPropOrEnv("base.url",
             "https://www.globalsqa.com/angularJs-protractor/BankingProject/#/login");
 
-    @BeforeMethod(alwaysRun = true)
+    public WebDriver getDriver() {
+        return driver;
+    }
+
+    @BeforeEach
     public void setUp() {
         driver = DriverManager.getDriver();
         navigateWithRetry(BASE_URL, 3);
@@ -54,20 +56,8 @@ public class BaseTest {
         }
     }
 
-    @AfterMethod(alwaysRun = true)
-    public void tearDown(ITestResult result) {
-        if (ITestResult.FAILURE == result.getStatus()) {
-            try {
-                captureScreenshot(result.getName());
-            } catch (Exception e) {
-                System.err.println("Screenshot failed (browser may be dead): " + e.getMessage());
-            }
-        }
+    @AfterEach
+    public void tearDown() {
         DriverManager.quitDriver();
-    }
-
-    @Attachment(value = "Screenshot - {testName}", type = "image/png")
-    public byte[] captureScreenshot(String testName) {
-        return ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
     }
 }

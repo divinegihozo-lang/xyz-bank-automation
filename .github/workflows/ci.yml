@@ -3,11 +3,10 @@ name: XYZ Bank Selenium Tests
 # -- Triggers ----------------------------------------------------------------
 on:
   push:
-    branches: [ main, master, develop ]
+    branches: [ master ]
   pull_request:
-    branches: [ main, master, develop ]
-  schedule:
-    - cron: '0 2 * * *'
+    branches: [ master ]
+
   workflow_dispatch:
     inputs:
       browser:
@@ -22,13 +21,11 @@ on:
 # -- Permissions -------------------------------------------------------------
 permissions:
   contents: read
-  checks: write
-  pull-requests: write
 
 # -- Jobs --------------------------------------------------------------------
 jobs:
   selenium-tests:
-    name: Run Selenium Tests (TestNG)
+    name: Run Selenium Tests (JUnit 5)
     runs-on: ubuntu-latest
 
     steps:
@@ -130,15 +127,7 @@ jobs:
             echo "HTMLEOF"
           } >> $GITHUB_OUTPUT
 
-      # 6. Publish TestNG test results as GitHub Check
-      - name: Publish Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        if: always()
-        with:
-          files: target/surefire-reports/**/*.xml
-          check_name: "Selenium Test Results"
-          comment_on_pr: true
-          fail_on: "test failures"
+
 
       # 7. Generate Allure Report
       - name: Generate Allure Report
